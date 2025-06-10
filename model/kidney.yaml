@@ -1,0 +1,6 @@
+path: C:/Users/Yaswanth Reddy/KidneyStoneDetection/dataset
+train: train
+val: valid
+
+nc: 1  
+names: ['kidney_stone']

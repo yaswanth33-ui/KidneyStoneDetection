@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidney Stone Detection | AI Medical Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E7D32;     
+            --secondary: #4CAF50;   
+            --accent: #FF9800;        
+            --dark: #1B5E20;          
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4CAF50;
+            --info: #2196F3;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --kidney-color: #8B4513;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .full-width-section {
+            width: 100%;
+            margin: 1rem 0;
+            display: block;
+        }
+
+        /* Horizontal block layout for main sections */
+        .horizontal-block-layout {
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+        }.upload-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+            border-radius: 25px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 60px rgba(46, 125, 50, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 25px 25px 0 0;
+        }
+
+        .upload-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 80px rgba(46, 125, 50, 0.15);
+            border-color: var(--secondary);
+        }        
+        .upload-section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }        
+        .upload-area {
+            text-align: center;
+            padding: 2.5rem 2rem;
+            border: 3px dashed var(--primary);
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, #e8f5e8 0%, #dcedc8 100%);
+            border-color: var(--secondary);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            border-color: var(--accent);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+        }
+
+        .upload-area.file-selected {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: var(--info);
+            border-style: solid;
+        }        .upload-icon {
+            font-size: 5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover .upload-icon {
+            color: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .upload-text {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-info {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-size {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .upload-progress {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .upload-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }        
+        .file-input {
+            display: none;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent) 0%, #F57C00 100%);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #F57C00 0%, var(--accent) 100%);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }        .info-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .info-section-grid {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .info-section-grid h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 600;
+        }        .horizontal-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }        .info-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(46, 125, 50, 0.15);
+            border-color: var(--secondary);
+        }        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-card h3 i {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .info-card li {
+            margin: 0.5rem 0;
+            position: relative;
+        }
+
+        .info-card li:before {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--success);
+            position: absolute;
+            left: -1.5rem;
+        }        .results-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 50px rgba(46, 125, 50, 0.15);
+            border: 2px solid rgba(76, 175, 80, 0.2);
+            margin-top: 1.5rem;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .results-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--success), var(--primary), var(--accent), var(--info));
+            border-radius: 25px 25px 0 0;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .results-section.active {
+            display: block;
+            animation: slideInFromBottom 0.6s ease-out;
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }        .results-section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            text-shadow: 0 2px 4px rgba(46, 125, 50, 0.1);
+            position: relative;
+        }
+
+        .results-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border-radius: 2px;
+        }        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }        .results-image-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            background: white;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .results-image-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            border-color: var(--secondary);
+        }        .results-image-container h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-weight: 600;
+        }
+
+        .results-image-container h3 i {
+            color: var(--secondary);
+            font-size: 1.3rem;
+        }
+
+        .result-image {
+            max-width: 100%;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .result-image:hover {
+            transform: scale(1.02);
+        }        .results-info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }        .prediction-card {
+            background: linear-gradient(135deg, var(--success) 0%, #2E7D32 100%);
+            color: white;
+            padding: 1.8rem 1.5rem;
+            border-radius: 18px;
+            text-align: center;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.15) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .prediction-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .prediction-card:hover::before {
+            opacity: 1;
+        }
+
+        .prediction-card:hover::after {
+            opacity: 1;
+            animation: shine 1.5s ease-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }        .prediction-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 18px 40px rgba(76, 175, 80, 0.45);
+        }.prediction-card.negative {
+            background: linear-gradient(135deg, var(--info) 0%, #1976D2 100%);
+            box-shadow: 0 12px 30px rgba(33, 150, 243, 0.35);
+        }
+
+        .prediction-card.negative:hover {
+            box-shadow: 0 18px 40px rgba(33, 150, 243, 0.45);
+        }        .prediction-score {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            position: relative;
+        }
+
+        .prediction-score::before {
+            content: '🔬';
+            font-size: 2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }        .prediction-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .prediction-card p {
+            font-size: 1rem;
+            opacity: 0.95;
+            line-height: 1.4;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }        .analysis-details-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(46, 125, 50, 0.12);
+            border: 2px solid rgba(76, 175, 80, 0.15);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }        .analysis-details-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--info), var(--primary), var(--secondary), var(--accent));
+            border-radius: 16px 16px 0 0;
+            animation: rainbow 4s ease-in-out infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .analysis-details-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 55px rgba(46, 125, 50, 0.18);
+            border-color: var(--secondary);
+        }        .analysis-details-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 600;
+        }
+
+        .analysis-details-card h3 i {
+            font-size: 1.4rem;
+            color: var(--secondary);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item:hover {
+            background: rgba(76, 175, 80, 0.05);
+            margin: 0 -1rem;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-value {
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.95rem;
+        }
+
+        .detection-counts {
+            margin-top: 1.5rem;
+        }
+
+        .detection-counts h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detection-counts h4::before {
+            content: '📊';
+            font-size: 1.2rem;
+        }
+
+        .detection-counts ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detection-counts li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            background: rgba(76, 175, 80, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .detection-counts li:hover {
+            background: rgba(76, 175, 80, 0.1);
+            transform: translateX(5px);
+        }        .medical-notice-card {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 18px;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 15px 40px rgba(255, 193, 7, 0.25);
+            border: 3px solid rgba(255, 152, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .medical-notice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #dc3545, var(--warning), #dc3545);
+            border-radius: 18px 18px 0 0;
+            animation: warningPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .medical-notice-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 152, 0, 0.05) 10px,
+                rgba(255, 152, 0, 0.05) 20px
+            );
+            pointer-events: none;
+        }
+
+        .medical-notice-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(255, 193, 7, 0.35);
+            border-color: rgba(220, 53, 69, 0.5);
+        }
+
+        .medical-notice-card h3 {
+            color: #721c24;
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .medical-notice-card h3 i {
+            font-size: 1.5rem;
+            color: #dc3545;
+            animation: warningBlink 2s ease-in-out infinite;
+        }
+
+        @keyframes warningBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .medical-notice-card p {
+            color: #721c24;
+            line-height: 1.7;
+            font-size: 1rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+
+        .medical-notice-card p strong {
+            color: #dc3545;
+            font-weight: 700;
+        }        /* Block Design for Medical Disclaimer Section */
+        .medical-disclaimer-block {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 25px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(220, 53, 69, 0.3);
+            border: 4px solid rgba(220, 53, 69, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            width: 100%;
+            display: block;
+        }
+
+        .medical-disclaimer-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #dc3545, #ff6b35, #dc3545, #ff6b35, #dc3545);
+            background-size: 200% 100%;
+            border-radius: 25px 25px 0 0;
+            animation: dangerPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { 
+                background-position: 0% 50%;
+                opacity: 1; 
+            }
+            50% { 
+                background-position: 100% 50%;
+                opacity: 0.8; 
+            }
+        }
+
+        .medical-disclaimer-block::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 15px,
+                rgba(220, 53, 69, 0.08) 15px,
+                rgba(220, 53, 69, 0.08) 30px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .medical-disclaimer-block:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 80px rgba(220, 53, 69, 0.4);
+            border-color: #dc3545;
+        }
+
+        .medical-disclaimer-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .medical-disclaimer-block .disclaimer-header {
+            color: #721c24;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .medical-disclaimer-block .disclaimer-header i {
+            font-size: 2.5rem;
+            color: #dc3545;
+            animation: criticalBlink 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(220, 53, 69, 0.5));
+        }
+
+        @keyframes criticalBlink {
+            0%, 70%, 100% { opacity: 1; }
+            35% { opacity: 0.4; }
+        }
+
+        .medical-disclaimer-block .disclaimer-content {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            box-shadow: inset 0 2px 10px rgba(220, 53, 69, 0.1);
+        }
+
+        .medical-disclaimer-block .disclaimer-text {
+            color: #721c24;
+            line-height: 1.8;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .medical-disclaimer-block .disclaimer-text strong {
+            color: #dc3545;
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(220, 53, 69, 0.2);
+        }
+
+        .medical-disclaimer-points {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+
+        .medical-disclaimer-points li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            margin: 0.8rem 0;
+            background: rgba(220, 53, 69, 0.05);
+            border-radius: 15px;
+            border-left: 5px solid #dc3545;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #721c24;
+        }
+
+        .medical-disclaimer-points li:hover {
+            background: rgba(220, 53, 69, 0.1);
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+        }
+
+        .medical-disclaimer-points li::before {
+            content: '⚠️';
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            animation: warningShake 4s ease-in-out infinite;
+        }
+
+        @keyframes warningShake {
+            0%, 90%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+
+        .medical-disclaimer-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .medical-disclaimer-footer .footer-text {
+            color: #721c24;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .medical-disclaimer-footer .footer-text i {
+            color: #dc3545;
+            font-size: 1.4rem;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 50%, 100% { transform: scale(1); }
+            25%, 75% { transform: scale(1.2); }
+        }
+
+        @media (max-width: 968px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .prediction-score {
+                font-size: 3rem;
+            }
+
+            .results-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .results-section h2 {
+                font-size: 1.8rem;
+            }
+
+            .medical-notice-card {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+
+            .medical-notice-card h3 {
+                font-size: 1.2rem;
+                gap: 0.6rem;
+            }
+
+            .medical-notice-card h3 i {
+                font-size: 1.3rem;
+            }
+
+            .medical-notice-card p {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .horizontal-width-block {
+                margin: 0.3rem 0;
+            }
+
+            .upload-section,
+            .info-section-grid,
+            .results-section,
+            .features-container {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }        .alert.active {
+            display: block;
+        }
+
+        .features-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }        @media (max-width: 968px) {
+            .horizontal-cards-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .info-card {
+                padding: 1.25rem;
+            }
+
+            .full-width-section {
+                margin: 0.8rem 0;
+            }
+
+            .horizontal-block-layout {
+                margin: 0.8rem 0;
+            }
+        }        @media (max-width: 768px) {
+            .main-content {
+                gap: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width-section {
+                margin: 0.5rem 0;
+            }
+
+            .horizontal-block-layout {
+                margin: 0.5rem 0;
+            }
+        }.hero-section {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .hero-section h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }        .workflow-steps {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .step h4 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Enhanced horizontal block layout optimization */
+        .main-content > .full-width-section {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .main-content > .full-width-section:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Horizontal container for sections */
+        .horizontal-section-container {
+            width: 100%;
+            display: block;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Enhanced section spacing for horizontal layout */
+        .upload-section,
+        .info-section-grid,
+        .results-section,
+        .features-container {
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+            max-width: none;
+        }
+
+        /* Horizontal width optimization */
+        .horizontal-width-block {
+            width: 100%;
+            max-width: 100%;
+            display: block;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Horizontal block layout transitions and effects */
+        .horizontal-width-block {
+            animation: blockSlideIn 0.6s ease-out;
+        }
+
+        @keyframes blockSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered animation delays for block sections */
+        .main-content > .horizontal-width-block:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .main-content > .horizontal-width-block:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .main-content > .horizontal-width-block:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .main-content > .horizontal-width-block:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-kidneys"></i> Kidney Stone Detection</h1>
+        <p>Advanced AI-powered medical imaging analysis for kidney stone detection</p>
+    </div>    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h2>🔬 Advanced AI Medical Analysis</h2>
+            <p>Upload your medical imaging scans for instant kidney stone detection using state-of-the-art YOLO deep learning technology. Get accurate results in seconds.</p>
+            
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Upload Image</h4>
+                    <p>Select your medical scan</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>AI Analysis</h4>
+                    <p>YOLO model processes image</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Get Results</h4>
+                    <p>View detailed findings</p>
+                </div>
+            </div>
+        </div>        <div class="main-content">
+            <!-- Upload Section - Horizontal Block Layout -->
+            <div class="full-width-section horizontal-width-block">
+                <div class="upload-section">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> Upload Medical Image</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <div class="upload-text">
+                            Drop your medical image here or click to browse
+                        </div>
+                        <div class="upload-subtext">
+                            Supports: JPG, JPEG, PNG, WEBP, GIF, BMP, TIFF • Max size: 10MB
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff">
+                    </div>
+                    
+                    <div class="button-container">
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Choose File
+                        </button>
+                        <button class="btn btn-secondary" id="analyzeBtn" disabled>
+                            <i class="fas fa-search"></i> Analyze Image
+                        </button>
+                        <button class="btn btn-reset" id="resetBtn" onclick="resetUpload()" style="display: none;">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                    
+                    <div class="alert" id="alertBox"></div>
+                    
+                    <div class="loading" id="loadingSection">
+                        <div class="spinner"></div>
+                        <p>🔬 Analyzing medical image with AI... Please wait.</p>
+                        <div class="upload-progress">
+                            <div class="upload-progress-bar" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>            <!-- Info Section - Horizontal Block Layout -->
+            <div class="full-width-section horizontal-width-block">
+                <div class="info-section-grid">
+                    <h2><i class="fas fa-info-circle"></i> About This Tool</h2>
+                    
+                    <div class="horizontal-cards-grid">
+                        <div class="info-card">
+                            <h3><i class="fas fa-eye"></i> AI Detection Capabilities</h3>
+                            <ul>
+                                <li>Automated kidney stone identification</li>
+                                <li>High-accuracy medical image analysis</li>
+                                <li>Real-time processing and results</li>
+                                <li>Support for multiple image formats</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <h3><i class="fas fa-shield-alt"></i> Medical Disclaimer</h3>
+                            <p><strong>Important:</strong> This tool is for educational and research purposes only. Results should not replace professional medical diagnosis. Always consult with qualified healthcare professionals for medical decisions.</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3><i class="fas fa-cogs"></i> How It Works</h3>
+                            <ul>
+                                <li>Upload a medical imaging scan</li>
+                                <li>AI analyzes the image using YOLO models</li>
+                                <li>Detects presence of kidney stones</li>
+                                <li>Provides confidence scores and visualization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Results Section - Horizontal Block Layout -->
+            <div class="full-width-section horizontal-width-block">
+                <div class="results-section" id="resultsSection">
+                    <h2><i class="fas fa-chart-line"></i> Analysis Results</h2>
+                    <div id="resultsContent">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>            <!-- Features Section - Horizontal Block Layout -->
+            <div class="full-width-section horizontal-width-block">
+                <div class="features-container">
+                    <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary);">
+                        <i class="fas fa-star"></i> Why Choose Our AI System?
+                    </h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3>AI-Powered</h3>
+                            <p>Advanced YOLO machine learning models trained on extensive medical imaging datasets for accurate kidney stone detection.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <h3>Fast Analysis</h3>
+                            <p>Quick processing and instant results delivered in seconds to support rapid medical decision-making.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3>Secure & Private</h3>
+                            <p>Your medical images are processed securely and are not stored on our servers for maximum privacy protection.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h3>Detailed Reports</h3>
+                            <p>Comprehensive analysis with confidence scores, detection counts, and visual annotations for thorough evaluation.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-images"></i>
+                            </div>
+                            <h3>Multiple Formats</h3>
+                            <p>Support for various medical image formats including JPG, PNG, TIFF, and more for maximum compatibility.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h3>Responsive Design</h3>
+                            <p>Works seamlessly across desktop, tablet, and mobile devices for accessibility anywhere.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Disclaimer Block Section -->
+            <div class="full-width-section horizontal-width-block">
+                <div class="medical-disclaimer-block">
+                    <div class="medical-disclaimer-content">
+                        <h2 class="disclaimer-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Important Medical Disclaimer
+                        </h2>
+                        
+                        <div class="disclaimer-content">
+                            <div class="disclaimer-text">
+                                <strong>CRITICAL NOTICE:</strong> This AI-powered kidney stone detection system is designed exclusively for <strong>educational and research purposes</strong>. The automated analysis and results provided by this tool should <strong>NEVER be used as a substitute</strong> for professional medical diagnosis, treatment decisions, or clinical evaluations.
+                            </div>
+                            
+                            <ul class="medical-disclaimer-points">
+                                <li>
+                                    <span><strong>Professional Consultation Required:</strong> Always consult with qualified healthcare professionals, radiologists, and medical specialists for proper medical evaluation and diagnosis.</span>
+                                </li>
+                                <li>
+                                    <span><strong>Not a Medical Device:</strong> This tool is not FDA-approved and should not be used for clinical decision-making or patient care.</span>
+                                </li>
+                                <li>
+                                    <span><strong>Educational Purpose Only:</strong> Results are intended for learning, research, and demonstration of AI technology capabilities in medical imaging.</span>
+                                </li>
+                                <li>
+                                    <span><strong>No Liability:</strong> The developers and providers of this tool assume no responsibility for any medical decisions made based on its output.</span>
+                                </li>
+                                <li>
+                                    <span><strong>Seek Medical Care:</strong> If you have health concerns or symptoms, contact your healthcare provider immediately for proper medical assessment.</span>
+                                </li>
+                            </ul>
+                            
+                            <div class="medical-disclaimer-footer">
+                                <div class="footer-text">
+                                    <i class="fas fa-heart-pulse"></i>
+                                    Your health and safety are paramount - always consult medical professionals
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        let selectedFile = null;
+
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const alertBox = document.getElementById('alertBox');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // File input change handler
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Analyze button handler
+        analyzeBtn.addEventListener('click', analyzeImage);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }        function processFile(file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/tiff'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('Please select a valid image file (JPG, PNG, WEBP, GIF, BMP, TIFF)', 'error');
+                return;
+            }
+
+            // Validate file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('File size must be less than 10MB', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            analyzeBtn.disabled = false;
+            
+            // Update upload area with enhanced file info
+            uploadArea.classList.add('file-selected');
+            uploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                </div>
+                <div class="upload-text">
+                    ✅ File Ready for Analysis
+                </div>
+                <div class="file-info">
+                    <div class="file-name">
+                        <i class="fas fa-file-image"></i> ${file.name}
+                    </div>
+                    <div class="file-size">
+                        📏 Size: ${(file.size / 1024 / 1024).toFixed(2)} MB | 📐 Type: ${file.type.split('/')[1].toUpperCase()}
+                    </div>
+                </div>
+            `;
+            
+            // Show reset button
+            document.getElementById('resetBtn').style.display = 'inline-flex';
+            
+            showAlert('✨ File selected successfully! Click "Analyze Image" to begin AI analysis.', 'success');
+        }        function analyzeImage() {
+            if (!selectedFile) {
+                showAlert('Please select an image file first', 'error');
+                return;
+            }
+
+            // Show loading with progress animation
+            loadingSection.classList.add('active');
+            analyzeBtn.disabled = true;
+            resultsSection.classList.remove('active');
+            
+            // Animate progress bar
+            const progressBar = document.getElementById('progressBar');
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 200);
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Send request to server
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    loadingSection.classList.remove('active');
+                    analyzeBtn.disabled = false;
+                    progressBar.style.width = '0%';
+                    
+                    if (data.error) {
+                        showAlert(`❌ Error: ${data.error}`, 'error');
+                    } else {
+                        displayResults(data);
+                        showAlert('🎉 Analysis completed successfully!', 'success');
+                    }
+                }, 500);
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '0%';
+                loadingSection.classList.remove('active');
+                analyzeBtn.disabled = false;
+                showAlert(`❌ Network error: ${error.message}`, 'error');
+                console.error('Error:', error);
+            });
+        }        function displayResults(data) {
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Determine if stones were detected
+            const hasStones = data.kidney_stones_detected || (data.prediction && data.prediction.toLowerCase().includes('stone'));
+            const confidence = data.confidence || 0;
+            
+            // Create detailed counts display
+            let countsDisplay = '';
+            if (data.counts && Object.keys(data.counts).length > 0) {
+                const detectionEntries = Object.entries(data.counts).filter(([_, count]) => count > 0);
+                if (detectionEntries.length > 0) {
+                    countsDisplay = `
+                        <div class="detection-counts">
+                            <h4>Detection Summary</h4>
+                            <ul>
+                                ${detectionEntries.map(([className, count]) => 
+                                    `<li>
+                                        <span><strong>${className}</strong></span>
+                                        <span class="detail-value">${count} detected</span>
+                                    </li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+            
+            resultsContent.innerHTML = `
+                <div class="results-grid">
+                    <div class="results-image-container">
+                        <h3><i class="fas fa-microscope"></i> Processed Medical Scan</h3>
+                        <img src="data:image/jpeg;base64,${data.result_image}" class="result-image" alt="AI Analysis Result with Detection Overlays">
+                        <div style="text-align: center; margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 15px;">
+                            <small style="color: var(--primary); font-weight: 600;">
+                                <i class="fas fa-info-circle"></i> Red boxes indicate detected kidney stones
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="results-info-container">
+                        <div class="prediction-card ${hasStones ? '' : 'negative'}">
+                            <div class="prediction-score">${(confidence * 100).toFixed(1)}%</div>
+                            <h3>${hasStones ? '🔴 Kidney Stones Detected' : '✅ No Stones Detected'}</h3>
+                            <p>${hasStones ? 
+                                'AI analysis has identified potential kidney stones in the medical image' : 
+                                'No kidney stones were detected in the analyzed medical image'
+                            }</p>
+                        </div>
+                        
+                        <div class="analysis-details-card">
+                            <h3><i class="fas fa-chart-line"></i> Analysis Details</h3>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-robot"></i> AI Model
+                                </span>
+                                <span class="detail-value">YOLO Deep Learning</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-clock"></i> Processing Time
+                                </span>
+                                <span class="detail-value">${data.processing_time || 'N/A'}</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-expand-arrows-alt"></i> Image Dimensions
+                                </span>
+                                <span class="detail-value">${data.image_dimensions || 'N/A'}</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-percentage"></i> Confidence Score
+                                </span>
+                                <span class="detail-value">${(confidence * 100).toFixed(2)}%</span>
+                            </div>
+                            
+                            ${countsDisplay}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            resultsSection.classList.add('active');
+            
+            // Smooth scroll to results with offset for better visibility
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 300);
+        }
+
+        function showAlert(message, type) {
+            alertBox.className = `alert ${type} active`;
+            alertBox.textContent = message;
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertBox.classList.remove('active');
+                }, 5000);
+            }
+        }
+
+        // Reset file selection
+        function resetUpload() {
+            selectedFile = null;
+            analyzeBtn.disabled = true;
+            fileInput.value = '';
+            uploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <div class="upload-text">
+                    Drop your medical image here or click to browse
+                </div>
+                <div class="upload-subtext">
+                    Supports: JPG, JPEG, PNG, WEBP, GIF, BMP, TIFF
+                </div>
+            `;
+            alertBox.classList.remove('active');
+            resultsSection.classList.remove('active');
+        }
+
+        // Check server health on page load
+        window.addEventListener('load', function() {
+            fetch('/health')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'healthy') {
+                        console.log('Server is healthy and ready');
+                    } else {
+                        showAlert('Server health check failed. Some features may not work properly.', 'error');
+                    }
+                })
+                .catch(error => {
+                    showAlert('Unable to connect to server. Please check your connection.', 'error');
+                });
+        });
+    </script>
+</body>
+</html>

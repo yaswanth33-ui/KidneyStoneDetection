@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Artifacts
+artifacts/
+
+# Dataset Cache
+*.cache
+
+# Model Files
+*.pt
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Avoid large files
+*.jpg
+*.png
+*.pt
+*.cache
+*.csv
+*.txt
+
+# Avoid large directories
+model/kidney-stone-yolo/
+artifacts/
+dataset/train/images/
+dataset/test/images/
+dataset/valid/images/
+dataset/train/labels/
+dataset/test/labels/
+dataset/valid/labels/
+
+# Ignore all files in the model folder except specific ones
+model/*
+!model/kidney.yaml
+!model/model.py

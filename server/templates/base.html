@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Cell Detection | AI Hematology Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B0000;  /* Dark red - blood color */
+            --secondary: #FF6B6B; /* Light red */
+            --accent: #4682B4;    /* Steel blue */
+            --dark: #333;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 10px;
+            padding: 3rem 2rem;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(139, 0, 0, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .results-section {
+            display: none; /* Initially hidden */
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .image-container {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .results-info {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .cell-count {
+            margin-bottom: 1.5rem;
+        }
+
+        .count-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .count-item:last-child {
+            border-bottom: none;
+        }
+
+        .cell-type {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .rbc { color: var(--primary); }
+        .wbc { color: var(--accent); }
+        .platelet { color: var(--success); }
+
+        .count-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-rbc { background-color: var(--primary); }
+        .legend-wbc { background-color: var(--accent); }
+        .legend-platelet { background-color: var(--success); }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Blood Cell Detection System</h1>
+            <p class="subtitle">Upload a blood smear image to detect and count red blood cells (RBCs), white blood cells (WBCs), and platelets using advanced AI technology</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <section class="upload-section">
+                <h2><i class="fas fa-microscope"></i> Analyze Blood Sample</h2>
+                <p>Upload an image of a blood smear to begin analysis</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drag & Drop Blood Smear Image</h3>
+                    <p>or click to browse files</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <button class="btn" id="uploadBtn"><i class="fas fa-upload"></i> Select Image</button>
+                </div>
+                
+                <div id="loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Analyzing image...
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection">
+                <h2><i class="fas fa-chart-bar"></i> Analysis Results</h2>
+                
+                <div class="results-grid">
+                    <div class="image-container">
+                        <img id="processedImage" src="" alt="Processed blood smear with cell detection">
+                    </div>
+                    
+                    <div class="results-info">
+                        <h3>Cell Count Summary</h3>
+                        
+                        <div class="cell-count">
+                            <div class="count-item">
+                                <span class="cell-type rbc">Red Blood Cells (RBCs)</span>
+                                <span class="count-value" id="rbcCount">0</span>
+                            </div>
+                            <div class="count-item">
+                                <span class="cell-type wbc">White Blood Cells (WBCs)</span>
+                                <span class="count-value" id="wbcCount">0</span>
+                            </div>
+                            <div class="count-item">
+                                <span class="cell-type platelet">Platelets</span>
+                                <span class="count-value" id="plateletCount">0</span>
+                            </div>
+                        </div>
+                        
+                        <h3>Legend</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-rbc"></div>
+                                <span>Red Blood Cells</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-wbc"></div>
+                                <span>White Blood Cells</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-platelet"></div>
+                                <span>Platelets</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="newAnalysisBtn" style="margin-top: 2rem;">
+                    <i class="fas fa-redo"></i> Analyze Another Image
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Blood Cell Detection System &copy; 2023 | Powered by AI Hematology Technology</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('resultsSection');
+            const processedImage = document.getElementById('processedImage');
+            const rbcCount = document.getElementById('rbcCount');
+            const wbcCount = document.getElementById('wbcCount');
+            const plateletCount = document.getElementById('plateletCount');
+            const newAnalysisBtn = document.getElementById('newAnalysisBtn');
+            
+            // Handle file selection
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.backgroundColor = 'rgba(139, 0, 0, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = 'var(--gray)';
+                uploadArea.style.backgroundColor = 'transparent';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--gray)';
+                uploadArea.style.backgroundColor = 'transparent';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            });
+            
+            // Handle file input change
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // New analysis button
+            newAnalysisBtn.addEventListener('click', () => {
+                resultsSection.style.display = 'none';
+                fileInput.value = '';
+            });
+            
+            function handleFileUpload() {
+                if (fileInput.files && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    
+                    // Show loading state
+                    loading.style.display = 'block';
+                    
+                    // In a real application, you would send this to your backend API
+                    // For this demo, we'll simulate processing with a timeout
+                    setTimeout(() => {
+                        // Create a preview of the uploaded image
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // This is where you would normally receive the processed image from your API
+                            // For demo purposes, we'll use the same image with simulated bounding boxes
+                            processedImage.src = e.target.result;
+                            
+                            // Simulate cell counts (in a real app, these would come from your API)
+                            rbcCount.textContent = Math.floor(Math.random() * 200) + 100;
+                            wbcCount.textContent = Math.floor(Math.random() * 20) + 5;
+                            plateletCount.textContent = Math.floor(Math.random() * 500) + 200;
+                            
+                            // Show results
+                            loading.style.display = 'none';
+                            resultsSection.style.display = 'block';
+                            
+                            // Scroll to results
+                            resultsSection.scrollIntoView({ behavior: 'smooth' });
+                        };
+                        reader.readAsDataURL(file);
+                    }, 2000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
