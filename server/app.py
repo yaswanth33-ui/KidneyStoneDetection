@@ -32,21 +32,18 @@ def health():
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
-        # Check if file is in request
         if 'file' not in request.files:
             print("No file in request")
             return jsonify({'error': 'No file uploaded'}), 400
             
         file = request.files['file']
         
-        # Check if file is selected
         if file.filename == '' or file.filename is None:
             print("No file selected")
             return jsonify({'error': 'No file selected'}), 400
             
         print(f"Received file: {file.filename}")
         
-        # Check file format
         allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff'}
         file_extension = os.path.splitext(file.filename.lower())[1]
         
@@ -55,19 +52,14 @@ def upload():
             return jsonify({'error': f'Unsupported file format: {file_extension}. Supported formats: {", ".join(allowed_extensions)}'}), 400
             
         try:
-            # Open and validate image
             image = Image.open(file.stream)
             print(f"Image opened successfully: {image.size}")
-              # Ensure image is in RGB mode
             if image.mode != 'RGB':
                 image = image.convert('RGB')
                 print(f"Converted image to RGB mode")
-                
-            # Call predict function and get results
             result_data = predict(image)
             print(f"Prediction completed. Results: {result_data['prediction']}")
             
-            # Return JSON response with the results
             return jsonify({
                 'success': True,
                 'result_image': result_data['result_image'],

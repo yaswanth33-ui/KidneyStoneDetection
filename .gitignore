@@ -7,6 +7,8 @@ __pycache__/
 # Environment
 .env
 venv/
+env/
+.venv/
 
 # IDE
 .vscode/
@@ -53,3 +55,4 @@ dataset/valid/labels/
 model/*
 !model/kidney.yaml
 !model/model.py
+!model/implementation.ipynb
