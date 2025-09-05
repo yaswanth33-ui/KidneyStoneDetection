@@ -3,8 +3,10 @@ services:
     name: kidney-stone-detection
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "cd server && gunicorn --bind 0.0.0.0:$PORT app:app"
+    startCommand: "cd server && gunicorn --bind 0.0.0.0:$PORT --timeout 300 --workers 1 --worker-class sync --worker-connections 10 --max-requests 100 --max-requests-jitter 10 --preload app:app"
     autoDeploy: true
     envVars:
       - key: FLASK_ENV
         value: production
+      - key: PYTORCH_CUDA_ALLOC_CONF
+        value: max_split_size_mb:128
