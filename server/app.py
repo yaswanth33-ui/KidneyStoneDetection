@@ -17,13 +17,16 @@ def home():
 def health():
     """Health check endpoint"""
     try:
-        model_path = os.path.join(os.getcwd(), 'artifacts', 'best.pt')
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(script_dir, 'artifacts', 'best.pt')
         model_exists = os.path.exists(model_path)
         return jsonify({
             'status': 'healthy',
             'model_path': model_path,
             'model_exists': model_exists,
-            'server_running': True
+            'server_running': True,
+            'working_directory': os.getcwd(),
+            'script_directory': script_dir
         })
     except Exception as e:
         return jsonify({

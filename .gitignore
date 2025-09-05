@@ -17,8 +17,7 @@ env/
 # Logs
 *.log
 
-# Artifacts
-artifacts/
+
 
 # Dataset Cache
 *.cache
@@ -43,7 +42,7 @@ Thumbs.db
 
 # Avoid large directories
 model/kidney-stone-yolo/
-artifacts/
+
 dataset/train/images/
 dataset/test/images/
 dataset/valid/images/

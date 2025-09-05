@@ -11,7 +11,9 @@ import time
 def predict(image):
     try:
         start_time = time.time()
-        model_path = os.path.join(Path.cwd(), 'artifacts', 'best.pt')
+        # Get the path relative to the server directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(script_dir, 'artifacts', 'best.pt')
         print(f"Loading model from: {model_path}")
         
         # Check if model file exists
