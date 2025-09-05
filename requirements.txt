@@ -7,3 +7,4 @@ torchvision
 matplotlib
 seaborn
 ultralytics
+gunicorn

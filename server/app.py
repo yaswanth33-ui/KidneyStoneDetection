@@ -80,4 +80,7 @@ def upload():
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Use environment variables for production settings
+    debug_mode = os.getenv('FLASK_ENV') != 'production'
+    port = int(os.getenv('PORT', 5000))
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
