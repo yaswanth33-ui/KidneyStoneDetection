@@ -3,6 +3,8 @@ from flask_cors import CORS
 from PIL import Image
 import os
 import sys
+import io
+from base64 import b64encode
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import predict
 
@@ -33,6 +35,41 @@ def health():
             'status': 'error',
             'error': str(e)
         }), 500
+
+@app.route('/test-upload', methods=['POST'])
+def test_upload():
+    """Test endpoint that processes images without ML model"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+            
+        file = request.files['file']
+        
+        if file.filename == '' or file.filename is None:
+            return jsonify({'error': 'No file selected'}), 400
+            
+        # Just process the image without ML
+        image = Image.open(file.stream)
+        
+        # Convert to base64 for return
+        buffered = io.BytesIO()
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        image.save(buffered, format="JPEG", quality=85)
+        img_str = b64encode(buffered.getvalue()).decode()
+        
+        return jsonify({
+            'success': True,
+            'result_image': img_str,
+            'prediction': 'Test mode - no ML processing',
+            'confidence': 0.95,
+            'processing_time': '0.1 seconds',
+            'image_dimensions': f"{image.size[0]}x{image.size[1]}",
+            'kidney_stones_detected': True
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Error: {str(e)}'}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload():

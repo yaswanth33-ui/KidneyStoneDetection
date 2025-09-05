@@ -24,8 +24,11 @@ def get_model():
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at: {model_path}")
         
-        # Load model with optimizations for memory
+        # Load model with CPU-only optimizations for memory
         _model = YOLO(model_path)
+        
+        # Force CPU usage and disable model optimization that causes issues
+        _model.to('cpu')
         
         # Force garbage collection
         gc.collect()
@@ -63,7 +66,12 @@ def predict(image):
                 save=False,  # Don't save intermediate files
                 show=False,  # Don't show plots
                 conf=0.25,   # Lower confidence threshold for faster processing
-                max_det=50   # Limit max detections
+                max_det=50,  # Limit max detections
+                device='cpu',  # Force CPU usage
+                half=False,  # Disable half precision to avoid issues
+                augment=False,  # Disable test-time augmentation
+                agnostic_nms=False,  # Disable class-agnostic NMS
+                retina_masks=False  # Disable retina masks
             )
         print("Prediction completed")
 
