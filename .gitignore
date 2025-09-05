@@ -24,6 +24,8 @@ env/
 
 # Model Files
 *.pt
+# Allow specific model files needed for deployment
+!server/artifacts/best.pt
 
 # Jupyter Notebooks
 .ipynb_checkpoints/
