@@ -56,3 +56,6 @@ model/*
 !model/kidney.yaml
 !model/model.py
 !model/implementation.ipynb
+
+
+!requirements.txt
